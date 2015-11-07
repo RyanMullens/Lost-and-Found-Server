@@ -5,7 +5,7 @@ var router = express.Router();
 
 
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/lost');
+mongoose.connect(process.env.mongo || 'mongodb://localhost/lost');
 
 var Lost = mongoose.model('Lost', {
   title: String,
