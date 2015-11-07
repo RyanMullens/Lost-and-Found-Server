@@ -12,8 +12,11 @@ var Lost = mongoose.model('Lost', {
   description : String,
   email : String,
   found : Boolean,
-  location : String,
-  checkedLocations : [String]
+  location : {
+    typeLocation : Number,
+    points : []
+  },
+  checkedLocations : []
 });
 
 
@@ -22,7 +25,7 @@ router.post('/', function(req, res, next) {
 
   var title = req.body.title;
   var description = req.body.description;
-  var location = JSON.stringify(req.body.location);
+  var location = req.body.location;
   var email = req.body.email;
 
   var lost = new Lost({
@@ -41,6 +44,15 @@ router.post('/', function(req, res, next) {
 
 router.get('/', function(req, res, next) {
   Lost.find({}, function(err, data){
+
+    if(data){
+
+      data = {
+        items : data
+      }
+
+    }
+
     res.send(err || data);
   })
 });
@@ -54,10 +66,10 @@ router.get('/:lostId', function(req, res, next) {
 
 router.post('/:lostId/check', function(req, res, next) {
   var id = req.params.lostId;
-  var location = JSON.stringify(req.body.location);
+  var points = req.body.points;
 
   Lost.findByIdAndUpdate(id,
-    {$push: {checkedLocations: location}},
+    { $push: { checkedLocations: { $each: points } } },
     {safe: true, upsert: true},
     function(err, model) {
         res.send(err || model);
